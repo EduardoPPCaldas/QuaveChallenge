@@ -1,5 +1,4 @@
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using QuaveChallenge.API.Dtos;
 using QuaveChallenge.API.Models;
 
 namespace QuaveChallenge.API.Services

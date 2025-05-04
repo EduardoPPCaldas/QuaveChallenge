@@ -15,7 +15,7 @@ namespace QuaveChallenge.API.Data.Configurations
             builder.Property(p => p.Title).HasMaxLength(200);
 
             builder.HasOne(p => p.Community)
-                .WithMany()
+                .WithMany(c => c.People)
                 .HasForeignKey(p => p.CommunityId)
                 .OnDelete(DeleteBehavior.Cascade);
         }

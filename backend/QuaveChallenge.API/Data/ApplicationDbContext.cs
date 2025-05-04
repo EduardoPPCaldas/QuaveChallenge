@@ -11,8 +11,8 @@ namespace QuaveChallenge.API.Data
         {
         }
 
-        public DbSet<Community> Communities { get; set; }
-        public DbSet<Person> People { get; set; }
+        public virtual DbSet<Community> Communities { get; set; }
+        public virtual DbSet<Person> People { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

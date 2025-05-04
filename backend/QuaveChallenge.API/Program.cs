@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using QuaveChallenge.API.Data;
 using QuaveChallenge.API.Services;
 using QuaveChallenge.API.Data.Seeding;
+using QuaveChallenge.API.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,9 +13,10 @@ builder.Services.AddSwaggerGen();
 
 // Add DB Context
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Add Services
+builder.Services.AddScoped<ApplicationProblemMiddleware>();
 builder.Services.AddScoped<IEventService, EventService>();
 
 // Add Seeder
@@ -39,10 +41,26 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseMiddleware<ApplicationProblemMiddleware>();
+
 app.UseCors("AllowFrontend");
 app.UseAuthorization();
 app.MapControllers();
+
+// Migrate Database
+using(var scope = app.Services.CreateScope())
+{
+    try
+    {
+        var dbContext = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        await dbContext.Database.MigrateAsync();
+    }
+    catch (Exception ex)
+    {
+        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
 
 // Seed Data
 using (var scope = app.Services.CreateScope())

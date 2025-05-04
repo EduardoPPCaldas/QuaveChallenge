@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using QuaveChallenge.API.Services;
 
 namespace QuaveChallenge.API.Controllers
 {
@@ -6,39 +7,41 @@ namespace QuaveChallenge.API.Controllers
     [Route("api/[controller]")]
     public class EventController : ControllerBase
     {
-        [HttpGet("communities")]
-        public IActionResult GetCommunities()
+        private readonly IEventService _eventService;
+
+        public EventController(IEventService eventService)
         {
-            // TODO: Implement get communities
-            return Ok();
+            _eventService = eventService;
+        }
+
+        [HttpGet("communities")]
+        public async Task<IActionResult> GetCommunities()
+        {
+            return Ok(await _eventService.GetCommunitiesAsync());
         }
 
         [HttpGet("people/{communityId}")]
-        public IActionResult GetPeople(int communityId)
+        public async Task<IActionResult> GetPeople(int communityId)
         {
-            // TODO: Implement get people by community
-            return Ok();
+            return Ok(await _eventService.GetPeopleByEventAsync(communityId));
         }
 
         [HttpPost("check-in/{personId}")]
-        public IActionResult CheckIn(int personId)
+        public async Task<IActionResult> CheckIn(int personId)
         {
-            // TODO: Implement check-in
-            return Ok();
+            return Ok(await _eventService.CheckInPersonAsync(personId));
         }
 
         [HttpPost("check-out/{personId}")]
-        public IActionResult CheckOut(int personId)
+        public async Task<IActionResult> CheckOut(int personId)
         {
-            // TODO: Implement check-out
-            return Ok();
+            return Ok(await _eventService.CheckOutPersonAsync(personId));
         }
 
         [HttpGet("summary/{communityId}")]
-        public IActionResult GetSummary(int communityId)
+        public async Task<IActionResult> GetSummary(int communityId)
         {
-            // TODO: Implement get summary
-            return Ok();
+            return Ok(await _eventService.GetEventSummaryAsync(communityId));
         }
     }
 } 

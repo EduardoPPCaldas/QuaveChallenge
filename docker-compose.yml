@@ -1,0 +1,45 @@
+services:
+  postgres:
+    image: postgres
+    container_name: quave_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: QuaveChallenge
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d QuaveChallenge"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: quave_backend
+    environment:
+      ASPNETCORE_URLS: http://+:5203
+      ASPNETCORE_ENVIRONMENT: Development
+      ConnectionStrings__DefaultConnection: "Server=postgres;Port=5432;Database=QuaveChallenge;User Id=postgres;Password=postgres;"
+    ports:
+      - "5203:5203"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: quave_frontend
+    ports:
+      - 3000:3000
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:
