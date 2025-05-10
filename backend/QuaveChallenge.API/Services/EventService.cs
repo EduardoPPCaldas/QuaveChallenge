@@ -53,6 +53,16 @@ namespace QuaveChallenge.API.Services
                 Status = (int) HttpStatusCode.NotFound
             });
 
+            if(person.CheckInDate - DateTime.UtcNow <= TimeSpan.FromSeconds(5))
+            {
+                throw new ApplicationProblemException(HttpStatusCode.BadRequest, new ProblemDetails
+                {
+                    Title = "Cannot check-out immediately after check in",
+                    Detail = "Must await 5 seconds after check in to check out",
+                    Status = (int) HttpStatusCode.BadRequest
+                });
+            }
+
             person.CheckOutDate = DateTime.UtcNow;
             await _context.SaveChangesAsync();
 
